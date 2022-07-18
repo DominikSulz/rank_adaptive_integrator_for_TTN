@@ -23,7 +23,7 @@ if tmp2(end) == 1
         v = 1:(m+1);
         v = v(v~=ii);
         tmp = double(tenmat(Y1{end},ii,v));
-        [~,S,~] = svd(tmp);
+        [~,S,~] = svd(tmp); 
         [s1,s2] = size(S);
 %         rk = 0;
         ss = min(s1,s2);
@@ -89,7 +89,7 @@ if tmp2(end) == 1
         v = v(v~=ii);
         tmp = double(tenmat(Y1{end},ii,v));
         s = size(Y1{end});
-        [P,S,Q] = svd(tmp);
+        [P,S,Q] = svd(tmp,"econ"); % hier evtl. svd(tmp,"econ"); einsetzen
         
 %         S(rank_save(ii)+1:end,rank_save(ii)+1:end)
         
@@ -128,7 +128,7 @@ else
         v = v(v~=ii);
         tmp = double(tenmat(Y1{end},ii,v));
         s = size(Y1{end});
-        [P,S,Q] = svd(tmp);
+        [P,S,Q] = svd(tmp,"econ"); % hier evtl. svd(tmp,"econ"); einsetzen
         [s1,s2] = size(S);
 %         rk = 0;
         ss = min(s1,s2);
