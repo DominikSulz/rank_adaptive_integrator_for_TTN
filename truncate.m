@@ -1,17 +1,8 @@
 function[Y1] = truncate(Y,tol,r_max,r_min)
-global d tau 
 
 Y1 = Y;
 m = length(Y) - 2;
 
-
-% for ii=1:d
-%     if iscell(Y1{ii})==1
-%         Y1{ii} = truncate(Y1{ii},tol,r_max,r_min);
-%     else
-%         
-%     end
-% end
 
 %% if we are at the root tensor - we must fulfill rank condition
 tmp2 = size(Y{end});
@@ -23,7 +14,7 @@ if tmp2(end) == 1
         v = 1:(m+1);
         v = v(v~=ii);
         tmp = double(tenmat(Y1{end},ii,v));
-        [~,S,~] = svd(tmp); 
+        [~,S,~] = svd(tmp,"econ"); 
         [s1,s2] = size(S);
 %         rk = 0;
         ss = min(s1,s2);
@@ -35,7 +26,7 @@ if tmp2(end) == 1
         rk = [];
         for j=1:ss
             tmp = sqrt(sum(S_diag(j:ss).^2));
-            if tmp < tol_S/m
+            if tmp < tol_S % zuvor tol_S/m
                 rk = j-1;
                 break
             end
@@ -140,7 +131,7 @@ else
         rk = [];
         for j=1:ss
             tmp = sqrt(sum(S_diag(j:ss).^2));
-            if tmp < tol_S/m
+            if tmp < tol_S % zuvor /m
                 rk = j-1;
                 break
             end
@@ -175,38 +166,5 @@ else
     end
 end
 
-% for ii=1:d
-%     if iscell(Y1{ii})==1
-%         Y1{ii} = truncate(Y1{ii},tol,r_max,r_min);
-%     else
-%         
-%     end
-% end
-% Y1 = rounding(Y1,tau);
 end
 
-
-%% old stuff
-
-%         while (count <= ss) 
-%             tmp = diag(S(count:ss,count:ss)).^2;
-%             if sqrt(sum(tmp)) < (tol/m)
-%                 rk = count - 1;
-%                 if count == 1
-%                     dum = 0; % dum = 0 if sqrt(sum(tmp)) < (tol/m) for full S
-%                 end
-%                 count = ss + 1;
-%             end
-%             count = count + 1;
-%         end
-%         
-%         if rk==0 && dum == 1
-%             rk = ss;
-%         elseif rk==0 && dum == 0
-%             rk = r_min;
-%         end
-%         if rk > r_max
-%             rk = r_max;
-%         elseif rk < r_min
-%             rk = r_min;
-%         end
