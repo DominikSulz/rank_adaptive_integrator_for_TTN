@@ -1,4 +1,4 @@
-function[Y1] = truncate(Y,tol,r_max,r_min)
+function[Y1] = truncate_old(Y,tol,r_max,r_min)
 
 Y1 = Y;
 m = length(Y) - 2;
@@ -6,7 +6,6 @@ m = length(Y) - 2;
 
 %% if we are at the root tensor - we must fulfill rank condition
 tmp2 = size(Y{end});
-P_save = cell(1,m);
 
 if tmp2(end) == 1 
     rank_save = zeros(m,2);
@@ -17,8 +16,11 @@ if tmp2(end) == 1
         tmp = double(tenmat(Y1{end},ii,v));
         [~,S,~] = svd(tmp,"econ"); 
         [s1,s2] = size(S);
+%         rk = 0;
         ss = min(s1,s2);
+%         count = 1;
         tol_S = tol*norm(S,'Fro'); %Änderung: davor gar nicht 
+%         dum = 1;
         
         S_diag = diag(S);
         rk = [];
@@ -78,22 +80,37 @@ if tmp2(end) == 1
         v = v(v~=ii);
         tmp = double(tenmat(Y1{end},ii,v));
         s = size(Y1{end});
-        [P,~,~] = svd(tmp,"econ"); 
+        [P,S,Q] = svd(tmp,"econ"); % hier evtl. svd(tmp,"econ"); einsetzen
+        
+%         S(rank_save(ii)+1:end,rank_save(ii)+1:end)
         
         P = P(:,1:rank_save(ii));
-        P_save{ii} = P';
+        S = S(1:rank_save(ii),1:rank_save(ii));
+        Q = Q(:,1:rank_save(ii));
         s(ii) = rank_save(ii);
+        Y1{end} = tensor(mat2tens(S*Q',s,ii),s);
         
         if 1==iscell(Y1{ii})
+%             Y1{ii} = truncate(Y1{ii},tol,r_max,r_min);
             m3 = length(size(Y1{ii}{end}));
             Y1{ii}{end} = ttm(Y1{ii}{end},P.',m3);
             Y1{ii}{end-1} = eye(s(ii),s(ii));
-            Y1{ii} = truncate(Y1{ii},tol,r_max,r_min);
+%             Y1 = rounding(Y1,tau);
+            Y1{ii} = truncate_old(Y1{ii},tol,r_max,r_min);
+            
+%             % re-orthonormalization
+%             tmp = double(tenmat(Y1{ii}{end},m3,1:m3-1)).';
+%             [Q,R] = qr(tmp,0);
+%             s = size(Y1{ii}{end});
+%             [~,s(end)] = size(Q);
+%             Y1{ii}{end} = tensor(mat2tens(Q.',s,m3),s);
+%             Y1{end} = ttm(Y1{end},R,ii);
+            
         else
             Y1{ii} = Y1{ii}*P;
         end
+%         Y1 = rounding(Y1,tau);
     end
-    Y1{end} = ttm(Y1{end},P_save,1:m);
 
 else 
     %% case when we are not at the root tensor    
@@ -102,10 +119,13 @@ else
         v = v(v~=ii);
         tmp = double(tenmat(Y1{end},ii,v));
         s = size(Y1{end});
-        [P,S,~] = svd(tmp,"econ"); % hier evtl. svd(tmp,"econ"); einsetzen
+        [P,S,Q] = svd(tmp,"econ"); % hier evtl. svd(tmp,"econ"); einsetzen
         [s1,s2] = size(S);
+%         rk = 0;
         ss = min(s1,s2);
+%         count = 1;
         tol_S = tol*norm(S,'Fro'); %Änderung: davor gar nicht 
+%         dum = 1;
         
         S_diag = diag(S);
         rk = [];
@@ -121,22 +141,29 @@ else
         end
         rk = max(rk,r_min);
         rk = min(rk,r_max);
+        
+%         S(rk+1:end,rk+1:end)
 
         P = P(:,1:rk);
-        P_save{ii} = P';
+        S = S(1:rk,1:rk);
+        Q = Q(:,1:rk);
         s(ii) = rk;
+        Y1{end} = tensor(mat2tens(S*Q',s,ii),s);
         
         % if Y{ii} is a cell
-        if 1==iscell(Y1{ii})
+        if 1==iscell(Y1{ii}) 
+%             Y1{ii} = truncate(Y1{ii},tol,r_max,r_min);
             m3 = length(size(Y1{ii}{end}));
-            Y1{ii}{end} = ttm(Y1{ii}{end},P.',m3);
+            Y1{ii}{end} = ttm(Y1{ii}{end},P.',m3); 
             Y1{ii}{end-1} = eye(s(ii),s(ii));
-            Y1{ii} = truncate(Y1{ii},tol,r_max,r_min);
+%             Y1 = rounding(Y1,tau);
+            Y1{ii} = truncate_old(Y1{ii},tol,r_max,r_min);
+
         else
-            Y1{ii} = Y1{ii}*P;
+            Y1{ii} = Y1{ii}*P; 
         end
+%         Y1 = rounding(Y1,tau);
     end
-    Y1{end} = ttm(Y1{end},P_save,1:m);
 end
 
 end
