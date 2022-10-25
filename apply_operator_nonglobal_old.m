@@ -1,6 +1,5 @@
-function [B] = apply_operator(X,A)
+function [B] = apply_operator_nonglobal_old(X,A,d)
 % X is a TTN and A a operator in TTN form. B = A(X)
-global d
 
 B = X;
 for ii=1:d
@@ -105,6 +104,7 @@ value = reshape(value, s1.*s2);
 % Idea from:
 % https://de.mathworks.com/matlabcentral/fileexchange/32578-superkron
 
+
 % old code
 % % "Multiplies" the cores C1 and C2
 % tmp1 = size(C1);
@@ -138,4 +138,5 @@ value = reshape(value, s1.*s2);
 %             end
 %         end
 % end
-% value = C;end
+% value = C;
+end
