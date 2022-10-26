@@ -8,8 +8,9 @@ function [A] = make_operator(X,B,tau,n)
 [s,d]= size(B);
 
 A = set_cores(X,s);
-A{end} = eye(s,s);
-A{end} = tensor(A{end},[s s 1]);
+z = size(A{end});
+A{end} = tensor(double(A{end}),[z 1]);
+A{end} = sptensor(A{end});
 A{end-1} = 1;
 
 for ii=1:d
@@ -28,67 +29,84 @@ for ii=1:d
     S = S(1:rr,1:rr);
     P = P(:,1:rr);
     R = S*P';
-%     R = R(1:rr,:);
-    A = set_operator(A,Q,R,ii,d);
-%     A = set_operator(A,U,eye(s,s),ii,d);
+    A = set_operator(A,Q,R,ii);
+
 end
-% A = rounding(A,tau);
+end
+
+
+function [arr] = count_leaves(X)
+
+m = length(X) - 2;
+arr = zeros(m+1,1);
+
+for ii=1:m
+    if 1==iscell(X{ii})
+        tmp = count_leaves(X{ii});
+        arr(ii) = tmp(end);
+    else
+        arr(ii) = 1;
+    end
+end
+arr(end) = sum(arr(1:end-1));
 
 end
 
-function [A] = set_operator(Y,Q,R,k,d)
+function [A] = set_operator(Y,Q,R,k)
 % S is the matrix that shall be on k-th leaf
-A = Y;
-if d==2
-    A{k} = Q;
-    A{end} = ttm(A{end},R,k);
-elseif d==3 
-    if k==3
-        A{2} = Q;
-        A{end} = ttm(A{end},R,2);
-    else
-        A{1} = set_operator(Y{1},Q,R,k,2);
-    end
-else
-    N = 0;
-    c = d - 2^N;
-    while 2^N <= c
-        N = N + 1;
-        c = d - 2^N;
-    end
-    
-    if c<= (2^(N-1))
-        dim_left = 2^(N-1) + c;
-        dim_right = 2^(N-1);
-    else
-        dim_left = 2^N;
-        dim_right = c;
-    end
 
-    if k <= dim_left
-        k_new = k;
-        d_new = dim_left;
-        A{1} = set_operator(Y{1},Q,R,k_new,d_new);
-    else
-        k_new = k - dim_left;
-        d_new = dim_right;
-        A{2} = set_operator(Y{2},Q,R,k_new,d_new);
+A = Y;
+arr = count_leaves(Y);
+m = length(Y) - 2;
+arr2 = zeros(m,1);
+arr2(1) = arr(1);
+for ii=2:m
+    arr2(ii) = arr2(ii-1) + arr(ii);
+end
+
+tmp = 0;
+for ii=1:m
+    if (k <= arr2(ii)) && (tmp < k)
+        if 1 == iscell(Y{ii})
+            A{ii} = set_operator(Y{ii},Q,R,k - tmp);
+        else
+            A{ii} = Q;
+            A{end} = ttm(A{end},R,ii);
+        end
     end
-end     
+    tmp = tmp + arr(ii);
+end
+
 end
 
 function [Y] = set_cores(X,s)
 
 Y = X; 
-Y{end} = id_tensor([s s s]);
+z = size(X{end});
+if z(end) == 1
+    ll = length(z) - 1;
+else
+    ll = length(z);
+end
+if ll == 2
+    Y{end} = id_tensor([s s]);
+elseif ll == 3
+    Y{end} = id_tensor([s s s]);
+elseif ll == 4
+    Y{end} = id_tensor([s s s s]);
+elseif ll == 5
+    Y{end} = id_tensor([s s s s s]);
+elseif ll == 6
+    Y{end} = id_tensor([s s s s s s]);
+end
+
 Y{end-1} = eye(s,s);
+
 if 1 == iscell(X)
-    m = length(Y) - 2;
+    m = length(X) - 2;
     for ii=1:m
         if iscell(Y{ii}) == 1
             Y{ii} = set_cores(Y{ii},s);
-        else
-            
         end
     end
 end
@@ -97,7 +115,6 @@ end
 
 function [C] = id_tensor(s)
 
-% C = zeros(s);
 C = sptensor(s);
 l = length(s);
 for ii=1:s(1)
@@ -113,5 +130,5 @@ for ii=1:s(1)
         C(ii,ii,ii,ii,ii,ii) = 1;    
     end
 end
-% C = tensor(C);
+
 end
