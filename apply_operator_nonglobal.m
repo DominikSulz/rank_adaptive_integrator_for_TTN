@@ -18,6 +18,7 @@ if s(end)==1
     B{end} = tensor(tmp,[s2 1]);
 else
     B{end} = tensor(tmp);
+    B{end-1} = eye(s2(end),s2(end));
 end
 
 end

@@ -7,7 +7,7 @@ for i=1:m
         [Y{i},Ri] = orth_core(dum);        
         Y{end} = ttm(Y{end},Ri,i); % orthonormalize the core
     else % if we are at a basis matrix
-        [Qi,S,V] = svd(A{i});
+        [Qi,S,V] = svd(A{i},"econ"); % davor ohne econ
         Ri = S*V';     
 %         [Qi,Ri] = qr(A{i},0);     % when truncating its better to use
 %         svd, as we want the maximum eigenvalues
@@ -30,7 +30,7 @@ function [X,R] = orth_core(T)
 
 m = length(T) - 2;
 Mat = double(tenmat(T{end},m+1,1:m));
-[Mat,S,V] = svd(Mat.');
+[Mat,S,V] = svd(Mat.',"econ"); % davor ohne econ
 R = S*V';
 % [Mat,R] = qr(Mat.',0); % when truncating its better to use svd
 s = size(T{end});

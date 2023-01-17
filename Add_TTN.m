@@ -56,7 +56,7 @@ for i=1:m
         [C{i},Ri] = orth_core(dum);
         C{end} = ttm(C{end},Ri,i); % orthonormalize the core
     else % A_i and B_i are basis matrices (leafs)
-        [Qi,S,V] = svd([A{i} B{i}]);
+        [Qi,S,V] = svd([A{i} B{i}],'econ'); % davor ohne econ
         Ri = S*V';
         %         [Qi,Ri] = qr([A{i} B{i}],0);     % when truncating its better to use
         %         svd, as we want the maximum eigenvalues
@@ -79,7 +79,7 @@ function [X,R] = orth_core(T)
 
 m = length(T) - 2;
 Mat = double(tenmat(T{end},m+1,1:m));
-[Mat,S,V] = svd(Mat.');
+[Mat,S,V] = svd(Mat.','econ'); % davor ohne econ
 R = S*V';
 %[Mat,R] = qr(Mat.',0);
 s = size(T{end});

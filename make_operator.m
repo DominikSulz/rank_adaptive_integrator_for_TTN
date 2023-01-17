@@ -23,7 +23,7 @@ for ii=1:d
         end
         U = [U tmp(:)];
     end
-    [Q,S,P] = svd(U);
+    [Q,S,P] = svd(U,0);
     rr =rank(S);
     Q = Q(:,1:rr);
     S = S(1:rr,1:rr);
