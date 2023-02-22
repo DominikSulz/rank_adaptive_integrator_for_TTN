@@ -40,19 +40,20 @@ end
 function [value] = mult_core(C1,C2)
 
 s1 = size(C1);
+if norm(s1 - ones(length(s1),1)) == 0
+    s1 = 1;
+end
 s2 = size(C2);
 nbDim = max(length(s1), length(s2));
 
-% We do the product
+% product
 value = reshape(C1,numel(C1),1) * reshape(C2,1,numel(C2));
 
-% And put the numbers back into their place
+% Rearrange product
 value = reshape(value,[s1 s2]);
 value = permute(value,reshape([nbDim+1:2*nbDim;1:nbDim],1,2*nbDim));
 value = reshape(value, s1.*s2);
 
-% Idea from:
-% https://de.mathworks.com/matlabcentral/fileexchange/32578-superkron
 
 
 % old code
