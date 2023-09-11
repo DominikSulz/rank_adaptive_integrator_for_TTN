@@ -39,6 +39,9 @@ end
 
 function [value] = mult_core(C1,C2)
 
+C1 = full(C1);
+C2 = full(C2);
+
 s1 = size(C1);
 if norm(s1 - ones(length(s1),1)) == 0
     s1 = 1;
