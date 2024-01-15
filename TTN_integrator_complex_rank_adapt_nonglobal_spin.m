@@ -74,6 +74,18 @@ F_ODE = @(C0,F_tau,U1_tau,t0,A,d) func_ODE(C0,F_tau,Y1(1:m),t0,A,d);
 
 Y1{end-1} = eye(size(Y0{end-1}));
 Y1{end} = RK_4_tensor_nonglobal(C0,F_ODE,Y1(1:m),F_tau,t0,t1,tau,A,d);
+
+
+% % %%% test parallel integrator
+% s = size(Y1{end});
+% tmp = Y1{end};
+% r = s/2;
+% tmp(r*ones(length(s),1)) = 0;
+% Y1{end} = tmp;
+% % 
+
+%%%
+
 C1_tau_hat = Y1{end};
 
 end
